@@ -1,6 +1,11 @@
 #ifndef SIMPLE_CMENU_H
 #define SIMPLE_CMENU_H
 
+#define UP -1
+#define DOWN 1
+
+typedef char ChangeMenuItemAction;
+
 typedef enum
 {
     EXECUTIVE_FUNCTION_TYPE,
@@ -13,7 +18,8 @@ typedef struct Menu *MenuHandle;
 typedef struct MenuItem
 {
     MenuItemType type; // 菜单项类型
-    const char *name;        // 菜单项名称
+    const char *name;  // 菜单项名称
+    char tag;   // 菜单项标签
     union
     {
         // 类型为EXECUTIVE_FUNCTION_TYPE本项有意义
@@ -21,8 +27,9 @@ typedef struct MenuItem
 
         // 类型为ENTER_NEXT_MENU_TYPE才本项有意义
         void (*enterMenuAction)(struct MenuItem *self); // 进入下一级菜单项动作
-        MenuHandle nextMenu;                       // 下一级菜单
+        MenuHandle nextMenu;                            // 下一级菜单
     } un;
+    struct MenuItem *prev; // 上一个菜单项
     struct MenuItem *next; // 下一个菜单项
 } MenuItem, *MenuItemHandle;
 
@@ -36,8 +43,11 @@ typedef struct MenuItemList
 // 菜单
 typedef struct Menu
 {
-    MenuItemList *menuItemListHandle;                       // 菜单项列表
-    void (*display)(MenuItemListHandle menuItemListHandle); // 显示菜单
+    MenuItemList *menuItemListHandle;                // 菜单项列表
+    MenuItemHandle selectedMenuItemHandle;           // 当前选中的菜单项
+    void (*displayMenuItem)(MenuItemHandle);         // 显示菜单项
+    void (*displaySelectedMenuItem)(MenuItemHandle); // 显示当前选中的菜单项
+
 } Menu, *MenuHandle;
 
 /* 初始化菜单项
@@ -50,6 +60,8 @@ MenuHandle initMenu();
 void registerMenu(MenuHandle menuHandle);
 void registerMenuItem(MenuHandle menuHandle, MenuItemHandle menuItemHandle);
 void updateCurrentMenu(MenuHandle menuHandle);
-void updateCurrentMenuItemHandle(MenuItemHandle menuItemHandle);
+
+void updateCurrentMenuItemHandle(MenuHandle menuHandle, ChangeMenuItemAction action);
+void display(MenuHandle menuHandle);
 
 #endif // SIMPLE_CMENU_H

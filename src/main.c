@@ -34,16 +34,22 @@ int main(void)
 {
     hideCursor();
     MenuHandle mainMenu = initMenu(displayMenuItem, displaySelectedMenuItem);
-    MenuItemHandle mainMenuItem1 = initMenuItem("[A] Item1", ENTER_NEXT_MENU_TYPE, NULL);
+    MenuHandle subMenu = initMenu(displayMenuItem, displaySelectedMenuItem);
+
+    MenuItemHandle mainMenuItem1 = initMenuItem("[A] enter", ENTER_MENU_TYPE, NULL, NULL, subMenu);
     registerMenuItem(mainMenu, mainMenuItem1);
-    MenuItemHandle mainMenuItem2 = initMenuItem("[B] Item2", ENTER_NEXT_MENU_TYPE, NULL);
+    MenuItemHandle mainMenuItem2 = initMenuItem("[B] Item2", ENTER_MENU_TYPE, NULL, NULL, NULL);
     registerMenuItem(mainMenu, mainMenuItem2);
-    MenuItemHandle mainMenuItem3 = initMenuItem("[C] Item3", ENTER_NEXT_MENU_TYPE, NULL);
+    MenuItemHandle mainMenuItem3 = initMenuItem("[C] Item3", ENTER_MENU_TYPE, NULL, NULL, NULL);
     registerMenuItem(mainMenu, mainMenuItem3);
 
-    char c;
+    MenuItemHandle subMenuItem1 = initMenuItem("[A] return", EXIT_MENU_TYPE, NULL, mainMenu, NULL);
+    registerMenuItem(subMenu, subMenuItem1);
+    MenuItemHandle subMenuItem2 = initMenuItem("[B] Item2", ENTER_MENU_TYPE, NULL, NULL, NULL);
+    registerMenuItem(subMenu, subMenuItem2);
 
-    display(mainMenu);
+    char c;
+    updateCurrentMenu(mainMenu);
     while (1)
     {
         if (kbhit())
@@ -51,29 +57,25 @@ int main(void)
             if (GetAsyncKeyState(VK_UP))
             {
                 system("cls");
-                updateCurrentMenuItemHandle(mainMenu, UP);
-                display(mainMenu);
+                updateCurrentMenuItem(UP);
             }
             if (GetAsyncKeyState(VK_DOWN))
             {
                 system("cls");
-                updateCurrentMenuItemHandle(mainMenu, DOWN);
-                display(mainMenu);
+                updateCurrentMenuItem(DOWN);
             }
             c = getch();
             if (c <= 'z' && c >= 'a')
                 c -= ('a' - 'A');
             if (c <= 'C' && c >= 'A')
             {
-                // sel = c - 'A' + 1;
                 system("cls");
-                updateCurrentMenuItemHandle(mainMenu, c);
-                display(mainMenu);
+                updateCurrentMenuItem(c);
                 printf("command is [%c]\n", c);
             }
             else if (c == '\r')
             {
-                
+                triggerCurrentMenuAction();
             }
             else if (c == 'C')
                 return 0;

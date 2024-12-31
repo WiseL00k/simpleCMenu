@@ -9,7 +9,8 @@ typedef char ChangeMenuItemAction;
 typedef enum
 {
     EXECUTIVE_FUNCTION_TYPE,
-    ENTER_NEXT_MENU_TYPE
+    ENTER_MENU_TYPE,
+    EXIT_MENU_TYPE,
 } MenuItemType;
 
 typedef struct Menu *MenuHandle;
@@ -19,18 +20,31 @@ typedef struct MenuItem
 {
     MenuItemType type; // 菜单项类型
     const char *name;  // 菜单项名称
-    char tag;   // 菜单项标签
+    char tag;          // 菜单项标签
+
     union
     {
-        // 类型为EXECUTIVE_FUNCTION_TYPE本项有意义
+        // 类型为EXECUTIVE_FUNCTION_TYPE才本项有意义
         void (*action)(); // 菜单项动作
 
-        // 类型为ENTER_NEXT_MENU_TYPE才本项有意义
-        void (*enterMenuAction)(struct MenuItem *self); // 进入下一级菜单项动作
-        MenuHandle nextMenu;                            // 下一级菜单
+        // 类型为CHANGE_MENU_TYPE才本项有意义
+        struct
+        {
+            void (*enterMenuAction)(struct MenuItem *);
+
+            MenuHandle nextMenu; // 下一级菜单
+        } enter;
+
+        struct
+        {
+            void (*exitMenuAction)(struct MenuItem *);
+            MenuHandle prevMenu; // 上一级菜单
+        } exit;
+
     } un;
-    struct MenuItem *prev; // 上一个菜单项
-    struct MenuItem *next; // 下一个菜单项
+
+    struct MenuItem *prevItem; // 上一个菜单项
+    struct MenuItem *nextItem; // 下一个菜单项
 } MenuItem, *MenuItemHandle;
 
 typedef struct MenuItemList
@@ -55,13 +69,13 @@ typedef struct Menu
  * @param type 菜单项类型
  * @param action 菜单项动作, 当菜单项类型为EXECUTIVE_FUNCTION_TYPE时有效, 否则为NULL
  */
-MenuItemHandle initMenuItem(const char *name, MenuItemType type, void (*action)());
+MenuItemHandle initMenuItem(const char *name, MenuItemType type, void (*action)(), MenuHandle prevMenu, MenuHandle nextMenu);
 MenuHandle initMenu();
 void registerMenu(MenuHandle menuHandle);
 void registerMenuItem(MenuHandle menuHandle, MenuItemHandle menuItemHandle);
 void updateCurrentMenu(MenuHandle menuHandle);
+void triggerCurrentMenuAction();
 
-void updateCurrentMenuItemHandle(MenuHandle menuHandle, ChangeMenuItemAction action);
-void display(MenuHandle menuHandle);
+void updateCurrentMenuItem(ChangeMenuItemAction itemAction);
 
 #endif // SIMPLE_CMENU_H

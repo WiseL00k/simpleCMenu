@@ -10,4 +10,4 @@ aux_source_directory(./src SRC)
 
 set(EXECUTABLE_OUTPUT_PATH ./)
 
-add_executable(simpleCMenu ${SRC})
+add_executable(main ${SRC})

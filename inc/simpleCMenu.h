@@ -15,6 +15,13 @@ typedef enum
 
 typedef struct Menu *MenuHandle;
 
+// 菜单项动作参数 用户可自行添加更改不同的参数类型
+typedef struct ActionArgs
+{
+    int num;         // 第一个参数：整数
+    const char *str; // 第二个参数：字符串
+} ActionArgs;
+
 // 菜单项
 typedef struct MenuItem
 {
@@ -25,7 +32,7 @@ typedef struct MenuItem
     union
     {
         // 类型为EXECUTIVE_FUNCTION_TYPE才本项有意义
-        void (*action)(); // 菜单项动作
+        void *(*action)(void *); // 菜单项动作
 
         // 类型为CHANGE_MENU_TYPE才本项有意义
         struct
@@ -59,6 +66,7 @@ typedef struct Menu
 {
     MenuItemList *menuItemListHandle;                // 菜单项列表
     MenuItemHandle selectedMenuItemHandle;           // 当前选中的菜单项
+    char currentMenuItemTag;                         // 当前菜单项标签
     void (*displayMenuItem)(MenuItemHandle);         // 显示菜单项
     void (*displaySelectedMenuItem)(MenuItemHandle); // 显示当前选中的菜单项
 
@@ -69,13 +77,13 @@ typedef struct Menu
  * @param type 菜单项类型
  * @param action 菜单项动作, 当菜单项类型为EXECUTIVE_FUNCTION_TYPE时有效, 否则为NULL
  */
-MenuItemHandle initMenuItem(const char *name, MenuItemType type, void (*action)(), MenuHandle prevMenu, MenuHandle nextMenu);
+MenuItemHandle initMenuItem(const char *name, MenuItemType type, void *(*action)(void *), MenuHandle prevMenu, MenuHandle nextMenu);
 MenuHandle initMenu();
 void registerMenu(MenuHandle menuHandle);
 void registerMenuItem(MenuHandle menuHandle, MenuItemHandle menuItemHandle);
 void updateCurrentMenu(MenuHandle menuHandle);
-void triggerCurrentMenuAction();
-
+void *triggerCurrentMenuAction(void *actionArgs);
 void updateCurrentMenuItem(ChangeMenuItemAction itemAction);
+char getCurrentMenuItemTag();
 
 #endif // SIMPLE_CMENU_H

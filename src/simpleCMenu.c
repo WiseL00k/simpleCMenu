@@ -5,14 +5,21 @@
 
 static MenuHandle currentMenuHandle = NULL;
 
-void triggerCurrentMenuAction()
+char getCurrentMenuItemTag()
 {
+    return currentMenuHandle->selectedMenuItemHandle->tag;
+}
+
+void *triggerCurrentMenuAction(void *actionArgs)
+{
+    void *p = NULL;
     if (currentMenuHandle == NULL)
-        return;
+        return NULL;
     switch (currentMenuHandle->selectedMenuItemHandle->type)
     {
     case EXECUTIVE_FUNCTION_TYPE:
-        currentMenuHandle->selectedMenuItemHandle->un.action();
+        p = currentMenuHandle->selectedMenuItemHandle->un.action(actionArgs);
+        system("pause");
         break;
     case ENTER_MENU_TYPE:
         currentMenuHandle->selectedMenuItemHandle->un.enter.enterMenuAction(currentMenuHandle->selectedMenuItemHandle);
@@ -23,7 +30,9 @@ void triggerCurrentMenuAction()
     default:
         break;
     }
-    return;
+
+    updateCurrentMenu(currentMenuHandle);
+    return p;
 }
 
 void display(MenuHandle menuHandle)
@@ -59,21 +68,25 @@ void updateCurrentMenuItem(ChangeMenuItemAction itemAction)
 {
     if (currentMenuHandle == NULL)
         return;
+    char currentMenuItemTag = currentMenuHandle->currentMenuItemTag;
     if (itemAction == UP)
     {
         currentMenuHandle->selectedMenuItemHandle = currentMenuHandle->selectedMenuItemHandle->prevItem;
+        currentMenuHandle->currentMenuItemTag = (currentMenuItemTag - 1) - 'A' < 0 ? 'A' + currentMenuHandle->menuItemListHandle->count - 1 : currentMenuItemTag - 1;
         if (currentMenuHandle->selectedMenuItemHandle == NULL)
             currentMenuHandle->selectedMenuItemHandle = currentMenuHandle->menuItemListHandle->tail;
     }
     else if (itemAction == DOWN)
     {
         currentMenuHandle->selectedMenuItemHandle = currentMenuHandle->selectedMenuItemHandle->nextItem;
+        currentMenuHandle->currentMenuItemTag = 'A' + ((currentMenuItemTag + 1) - 'A' % currentMenuHandle->menuItemListHandle->count);
         if (currentMenuHandle->selectedMenuItemHandle == NULL)
             currentMenuHandle->selectedMenuItemHandle = currentMenuHandle->menuItemListHandle->head;
     }
     else
     {
         currentMenuHandle->selectedMenuItemHandle = findMenuItem(currentMenuHandle, itemAction);
+        currentMenuHandle->currentMenuItemTag = currentMenuHandle->selectedMenuItemHandle->tag;
     }
     display(currentMenuHandle);
     return;
@@ -97,7 +110,7 @@ void exitMenuAction(struct MenuItem *self)
     updateCurrentMenu(self->un.exit.prevMenu);
 }
 
-MenuItemHandle initMenuItem(const char *name, MenuItemType type, void (*action)(), MenuHandle prevMenu, MenuHandle nextMenu)
+MenuItemHandle initMenuItem(const char *name, MenuItemType type, void *(*action)(void *), MenuHandle prevMenu, MenuHandle nextMenu)
 {
     if (name == NULL || (type == EXECUTIVE_FUNCTION_TYPE && action == NULL))
         return NULL;
@@ -136,6 +149,7 @@ MenuHandle initMenu(void (*displayMenuItem)(MenuItemHandle), void (*displaySelec
     menuHandle->menuItemListHandle->tail = NULL;
     menuHandle->menuItemListHandle->count = 0;
     menuHandle->selectedMenuItemHandle = NULL;
+    menuHandle->currentMenuItemTag = '\0';
     menuHandle->displayMenuItem = displayMenuItem;
     menuHandle->displaySelectedMenuItem = displaySelectedMenuItem;
     return menuHandle;
@@ -152,6 +166,7 @@ void registerMenuItem(MenuHandle menuHandle, MenuItemHandle menuItemHandle)
         menuHandle->menuItemListHandle->head = menuItemHandle;
         menuHandle->menuItemListHandle->tail = menuItemHandle;
         menuHandle->selectedMenuItemHandle = menuItemHandle;
+        menuHandle->currentMenuItemTag = 'A';
     }
     else
     {

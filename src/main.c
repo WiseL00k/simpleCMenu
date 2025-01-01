@@ -25,22 +25,26 @@ int main(void)
 {
     hideCursor();
     MenuHandle mainMenu = initMenu(displayMenuItem, displaySelectedMenuItem);
-    MenuHandle subMenu = initMenu(displayMenuItem, displaySelectedMenuItem);
+    MenuHandle subMenu1 = initMenu(displayMenuItem, displaySelectedMenuItem);
+    MenuHandle subMenu2 = initMenu(displayMenuItem, displaySelectedMenuItem);
 
-    MenuItemHandle mainMenuItem1 = initMenuItem("[A] enter", ENTER_MENU_TYPE, NULL, NULL, subMenu);
+    MenuItemHandle mainMenuItem1 = initChangeMenuItem("[A] enter", ENTER_MENU_TYPE, subMenu1);
     registerMenuItem(mainMenu, mainMenuItem1);
-    MenuItemHandle mainMenuItem2 = initMenuItem("[B] creatlink", EXECUTIVE_FUNCTION_TYPE, creatlink, NULL, NULL);
+    MenuItemHandle mainMenuItem2 = initExecFuncMenuItem("[B] creatlink", creatlink);
     registerMenuItem(mainMenu, mainMenuItem2);
-    MenuItemHandle mainMenuItem3 = initMenuItem("[C] printstring", EXECUTIVE_FUNCTION_TYPE, printstring, NULL, NULL);
+    MenuItemHandle mainMenuItem3 = initExecFuncMenuItem("[C] printstring", printstring);
     registerMenuItem(mainMenu, mainMenuItem3);
 
-    MenuItemHandle subMenuItem1 = initMenuItem("[A] return", EXIT_MENU_TYPE, NULL, mainMenu, NULL);
-    registerMenuItem(subMenu, subMenuItem1);
-    MenuItemHandle subMenuItem2 = initMenuItem("[B] Item2", ENTER_MENU_TYPE, NULL, NULL, NULL);
-    registerMenuItem(subMenu, subMenuItem2);
+    MenuItemHandle subMenuItem1 = initChangeMenuItem("[A] return", EXIT_MENU_TYPE, mainMenu);
+    registerMenuItem(subMenu1, subMenuItem1);
+    MenuItemHandle subMenuItem2 = initChangeMenuItem("[B] enter", ENTER_MENU_TYPE, subMenu2);
+    registerMenuItem(subMenu1, subMenuItem2);
+
+    MenuItemHandle subMenuItem3 = initChangeMenuItem("[A] return", EXIT_MENU_TYPE, subMenu1);
+    registerMenuItem(subMenu2, subMenuItem3);
 
     struct node *head = NULL;
-    char c, currentMenuItemTag = 'A';
+    char c;
     updateCurrentMenu(mainMenu);
     while (1)
     {

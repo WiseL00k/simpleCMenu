@@ -77,13 +77,14 @@ typedef struct Menu
  * @param type 菜单项类型
  * @param action 菜单项动作, 当菜单项类型为EXECUTIVE_FUNCTION_TYPE时有效, 否则为NULL
  */
-MenuItemHandle initMenuItem(const char *name, MenuItemType type, void *(*action)(void *), MenuHandle prevMenu, MenuHandle nextMenu);
-MenuHandle initMenu();
+MenuItemHandle initExecFuncMenuItem(const char *name, void *(*action)(void *));
+MenuItemHandle initChangeMenuItem(const char *name, MenuItemType type, MenuHandle menuHandle);
+MenuHandle initMenu(void (*displayMenuItem)(MenuItemHandle), void (*displaySelectedMenuItem)(MenuItemHandle));
 void registerMenu(MenuHandle menuHandle);
 void registerMenuItem(MenuHandle menuHandle, MenuItemHandle menuItemHandle);
 void updateCurrentMenu(MenuHandle menuHandle);
-void *triggerCurrentMenuAction(void *actionArgs);
 void updateCurrentMenuItem(ChangeMenuItemAction itemAction);
 char getCurrentMenuItemTag();
+void *triggerCurrentMenuAction(void *actionArgs);
 
 #endif // SIMPLE_CMENU_H

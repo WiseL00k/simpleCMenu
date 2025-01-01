@@ -110,9 +110,25 @@ void exitMenuAction(struct MenuItem *self)
     updateCurrentMenu(self->un.exit.prevMenu);
 }
 
-MenuItemHandle initMenuItem(const char *name, MenuItemType type, void *(*action)(void *), MenuHandle prevMenu, MenuHandle nextMenu)
+MenuItemHandle initExecFuncMenuItem(const char *name, void *(*action)(void *))
 {
-    if (name == NULL || (type == EXECUTIVE_FUNCTION_TYPE && action == NULL))
+    if (name == NULL || action == NULL)
+        return NULL;
+    MenuItemHandle menuItemHandle = (MenuItemHandle)malloc(sizeof(MenuItem));
+    if (menuItemHandle == NULL)
+        return NULL;
+    menuItemHandle->name = name;
+    menuItemHandle->tag = '\0';
+    menuItemHandle->type = EXECUTIVE_FUNCTION_TYPE;
+    menuItemHandle->un.action = action;
+    menuItemHandle->nextItem = NULL;
+    menuItemHandle->prevItem = NULL;
+    return menuItemHandle;
+}
+
+MenuItemHandle initChangeMenuItem(const char *name, MenuItemType type, MenuHandle menuHandle)
+{
+    if (name == NULL || menuHandle == NULL)
         return NULL;
     MenuItemHandle menuItemHandle = (MenuItemHandle)malloc(sizeof(MenuItem));
     if (menuItemHandle == NULL)
@@ -120,17 +136,15 @@ MenuItemHandle initMenuItem(const char *name, MenuItemType type, void *(*action)
     menuItemHandle->name = name;
     menuItemHandle->tag = '\0';
     menuItemHandle->type = type;
-    if (type == EXECUTIVE_FUNCTION_TYPE)
-        menuItemHandle->un.action = action;
-    else if (type == ENTER_MENU_TYPE)
+    if (type == ENTER_MENU_TYPE)
     {
         menuItemHandle->un.enter.enterMenuAction = enterMenuAction;
-        menuItemHandle->un.enter.nextMenu = nextMenu;
+        menuItemHandle->un.enter.nextMenu = menuHandle;
     }
     else if (type == EXIT_MENU_TYPE)
     {
         menuItemHandle->un.exit.exitMenuAction = exitMenuAction;
-        menuItemHandle->un.exit.prevMenu = prevMenu;
+        menuItemHandle->un.exit.prevMenu = menuHandle;
     }
     else
         return NULL;

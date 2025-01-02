@@ -92,6 +92,22 @@ void updateCurrentMenuItem(ChangeMenuItemAction itemAction)
     return;
 }
 
+int isCurrentMenu(MenuHandle menuHandle)
+{
+    return currentMenuHandle == menuHandle;
+}
+
+void runMainMenu(MenuHandle menuHandle)
+{
+    if (menuHandle == NULL)
+        return;
+    updateCurrentMenu(menuHandle);
+    while(1)
+    {
+        currentMenuHandle->loop(currentMenuHandle);
+    }
+}
+
 void updateCurrentMenu(MenuHandle menuHandle)
 {
     if (menuHandle == NULL)
@@ -153,7 +169,7 @@ MenuItemHandle initChangeMenuItem(const char *name, MenuItemType type, MenuHandl
     return menuItemHandle;
 }
 
-MenuHandle initMenu(void (*displayMenuItem)(MenuItemHandle), void (*displaySelectedMenuItem)(MenuItemHandle))
+MenuHandle initMenu(void (*displayMenuItem)(MenuItemHandle), void (*displaySelectedMenuItem)(MenuItemHandle), void (*loop)(MenuHandle))
 {
     MenuHandle menuHandle = (MenuHandle)malloc(sizeof(Menu));
     if (menuHandle == NULL)
@@ -166,6 +182,7 @@ MenuHandle initMenu(void (*displayMenuItem)(MenuItemHandle), void (*displaySelec
     menuHandle->currentMenuItemTag = '\0';
     menuHandle->displayMenuItem = displayMenuItem;
     menuHandle->displaySelectedMenuItem = displaySelectedMenuItem;
+    menuHandle->loop = loop;
     return menuHandle;
 }
 

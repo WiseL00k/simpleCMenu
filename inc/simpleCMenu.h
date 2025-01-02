@@ -69,7 +69,7 @@ typedef struct Menu
     char currentMenuItemTag;                         // 当前菜单项标签
     void (*displayMenuItem)(MenuItemHandle);         // 显示菜单项
     void (*displaySelectedMenuItem)(MenuItemHandle); // 显示当前选中的菜单项
-
+    void (*loop)(MenuHandle);                        // 菜单循环
 } Menu, *MenuHandle;
 
 /* 初始化菜单项
@@ -79,12 +79,15 @@ typedef struct Menu
  */
 MenuItemHandle initExecFuncMenuItem(const char *name, void *(*action)(void *));
 MenuItemHandle initChangeMenuItem(const char *name, MenuItemType type, MenuHandle menuHandle);
-MenuHandle initMenu(void (*displayMenuItem)(MenuItemHandle), void (*displaySelectedMenuItem)(MenuItemHandle));
+MenuHandle initMenu(void (*displayMenuItem)(MenuItemHandle), void (*displaySelectedMenuItem)(MenuItemHandle), void (*loop)(MenuHandle));
 void registerMenu(MenuHandle menuHandle);
 void registerMenuItem(MenuHandle menuHandle, MenuItemHandle menuItemHandle);
 void updateCurrentMenu(MenuHandle menuHandle);
 void updateCurrentMenuItem(ChangeMenuItemAction itemAction);
 char getCurrentMenuItemTag();
 void *triggerCurrentMenuAction(void *actionArgs);
+int isCurrentMenu(MenuHandle menuHandle);
+void runMainMenu(MenuHandle menuHandle);
+
 
 #endif // SIMPLE_CMENU_H

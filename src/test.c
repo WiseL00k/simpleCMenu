@@ -17,6 +17,8 @@ int checkstring(struct node *head, char *str);
 void savetofile(struct node *head, char *filename);
 struct node *getfromfile(struct node *head, char *filename);
 void *quit(void *args);
+
+// your menu loops
 void mainMenuLoop(MenuHandle menuHandle);
 void subMenu1Loop(MenuHandle menuHandle);
 void subMenu2Loop(MenuHandle menuHandle);
@@ -53,12 +55,12 @@ void mainMenuLoop(MenuHandle menuHandle)
             if (GetAsyncKeyState(VK_UP))
             {
                 system("cls");
-                updateCurrentMenuItem(UP);
+                updateSelectedMenuItem(UP);
             }
             if (GetAsyncKeyState(VK_DOWN))
             {
                 system("cls");
-                updateCurrentMenuItem(DOWN);
+                updateSelectedMenuItem(DOWN);
             }
             c = getch();
             if (c <= 'z' && c >= 'a')
@@ -66,12 +68,12 @@ void mainMenuLoop(MenuHandle menuHandle)
             if (c <= 'D' && c >= 'A')
             {
                 system("cls");
-                updateCurrentMenuItem(c);
+                updateSelectedMenuItem(c);
                 printf("command is [%c]\n", c);
             }
             else if (c == '\r')
             {
-                switch (getCurrentMenuItemTag())
+                switch (getSelectedMenuItemTag())
                 {
                 case 'A':
                     triggerCurrentMenuAction(NULL);
@@ -107,12 +109,12 @@ void subMenu1Loop(MenuHandle menuHandle)
             if (GetAsyncKeyState(VK_UP))
             {
                 system("cls");
-                updateCurrentMenuItem(UP);
+                updateSelectedMenuItem(UP);
             }
             if (GetAsyncKeyState(VK_DOWN))
             {
                 system("cls");
-                updateCurrentMenuItem(DOWN);
+                updateSelectedMenuItem(DOWN);
             }
             c = getch();
             if (c <= 'z' && c >= 'a')
@@ -120,12 +122,12 @@ void subMenu1Loop(MenuHandle menuHandle)
             if (c <= 'B' && c >= 'A')
             {
                 system("cls");
-                updateCurrentMenuItem(c);
+                updateSelectedMenuItem(c);
                 printf("command is [%c]\n", c);
             }
             else if (c == '\r')
             {
-                switch (getCurrentMenuItemTag())
+                switch (getSelectedMenuItemTag())
                 {
                 case 'A':
                     triggerCurrentMenuAction(NULL);
@@ -151,12 +153,12 @@ void subMenu2Loop(MenuHandle menuHandle)
             if (GetAsyncKeyState(VK_UP))
             {
                 system("cls");
-                updateCurrentMenuItem(UP);
+                updateSelectedMenuItem(UP);
             }
             if (GetAsyncKeyState(VK_DOWN))
             {
                 system("cls");
-                updateCurrentMenuItem(DOWN);
+                updateSelectedMenuItem(DOWN);
             }
             c = getch();
             if (c <= 'z' && c >= 'a')
@@ -164,12 +166,12 @@ void subMenu2Loop(MenuHandle menuHandle)
             if (c <= 'A' && c >= 'A')
             {
                 system("cls");
-                updateCurrentMenuItem(c);
+                updateSelectedMenuItem(c);
                 printf("command is [%c]\n", c);
             }
             else if (c == '\r')
             {
-                switch (getCurrentMenuItemTag())
+                switch (getSelectedMenuItemTag())
                 {
                 case 'A':
                     triggerCurrentMenuAction(NULL);
@@ -189,21 +191,21 @@ void initAllMenus(MenuHandle mainMenu)
     MenuHandle subMenu1 = initMenu(displayMenuItem, displaySelectedMenuItem, subMenu1Loop);
     MenuHandle subMenu2 = initMenu(displayMenuItem, displaySelectedMenuItem, subMenu2Loop);
 
-    MenuItemHandle mainMenuItem1 = initChangeMenuItem("[A] enter subMenu1", ENTER_MENU_TYPE, subMenu1);
-    MenuItemHandle mainMenuItem2 = initExecFuncMenuItem("[B] creatlink", creatlink);
-    MenuItemHandle mainMenuItem3 = initExecFuncMenuItem("[C] printstring", printstring);
-    MenuItemHandle mainMenuItem4 = initExecFuncMenuItem("[D] exit", quit);
+    MenuItemHandle mainMenuItem1 = initChangeMenuItem("enter subMenu1", ENTER_MENU_TYPE, subMenu1);
+    MenuItemHandle mainMenuItem2 = initExecFuncMenuItem("creatlink", creatlink);
+    MenuItemHandle mainMenuItem3 = initExecFuncMenuItem("printstring", printstring);
+    MenuItemHandle mainMenuItem4 = initExecFuncMenuItem("exit", quit);
     registerMenuItem(mainMenu, mainMenuItem1);
     registerMenuItem(mainMenu, mainMenuItem2);
     registerMenuItem(mainMenu, mainMenuItem3);
     registerMenuItem(mainMenu, mainMenuItem4);
 
-    MenuItemHandle subMenu1Item1 = initChangeMenuItem("[A] return mainMenu", EXIT_MENU_TYPE, mainMenu);
+    MenuItemHandle subMenu1Item1 = initChangeMenuItem("return mainMenu", EXIT_MENU_TYPE, mainMenu);
     registerMenuItem(subMenu1, subMenu1Item1);
-    MenuItemHandle subMenu1Item2 = initChangeMenuItem("[B] enter subMenu2", ENTER_MENU_TYPE, subMenu2);
+    MenuItemHandle subMenu1Item2 = initChangeMenuItem("enter subMenu2", ENTER_MENU_TYPE, subMenu2);
     registerMenuItem(subMenu1, subMenu1Item2);
 
-    MenuItemHandle subMenu2Item1 = initChangeMenuItem("[A] return subMenu1", EXIT_MENU_TYPE, subMenu1);
+    MenuItemHandle subMenu2Item1 = initChangeMenuItem("return subMenu1", EXIT_MENU_TYPE, subMenu1);
     registerMenuItem(subMenu2, subMenu2Item1);
 
 }
@@ -294,4 +296,75 @@ void *printstring(struct node *head)
     }
 
     return NULL;
+}
+
+int checkstring(struct node *head, char *str)
+{
+    struct node *p = head;
+    while (p)
+    {
+        if (strcmp(p->name, str) == 0)
+            return 1;
+        p = p->next;
+    }
+    return -1;
+}
+
+void savetofile(struct node *head, char *filename)
+{
+    FILE *fp;
+    struct node *p = head;
+    fp = fopen(filename, "w");
+    if (fp == NULL)
+    {
+        printf("Can't open file\n");
+        exit(0);
+    }
+    while (p)
+    {
+        fprintf(fp, "%s %d\n", p->name, p->data);
+        p = p->next;
+    }
+    fclose(fp);
+}
+
+struct node *getfromfile(struct node *head, char *filename)
+{
+    FILE *fp;
+    struct node *p, *temp;
+    head = NULL;
+    fp = fopen(filename, "r");
+    if (fp == NULL)
+    {
+        printf("Can't open file\n");
+        exit(0);
+    }
+    while (1)
+    {
+        if (!head)
+        {
+            head = (struct node *)malloc(sizeof(struct node));
+            head->next = NULL;
+            if (fscanf(fp, "%s %d", head->name, &head->data) != 2)
+            {
+                free(head);
+                break;
+            }
+            p = head;
+        }
+        else
+        {
+            temp = (struct node *)malloc(sizeof(struct node));
+            temp->next = NULL;
+            if (fscanf(fp, "%s %d", temp->name, &temp->data) != 2)
+            {
+                free(temp);
+                break;
+            }
+            p->next = temp;
+            p = temp;
+        }
+    }
+    fclose(fp);
+    return head;
 }

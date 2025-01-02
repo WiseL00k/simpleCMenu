@@ -26,7 +26,7 @@ typedef struct ActionArgs
 typedef struct MenuItem
 {
     MenuItemType type; // 菜单项类型
-    const char *name;  // 菜单项名称
+    char *name;  // 菜单项名称
     char tag;          // 菜单项标签
 
     union
@@ -66,10 +66,10 @@ typedef struct Menu
 {
     MenuItemList *menuItemListHandle;                // 菜单项列表
     MenuItemHandle selectedMenuItemHandle;           // 当前选中的菜单项
-    char currentMenuItemTag;                         // 当前菜单项标签
+    char selectedMenuItemTag;                        // 当前选中的菜单项标签
     void (*displayMenuItem)(MenuItemHandle);         // 显示菜单项
     void (*displaySelectedMenuItem)(MenuItemHandle); // 显示当前选中的菜单项
-    void (*loop)(MenuHandle);                        // 菜单循环
+    void (*loop)(MenuHandle);                        // 菜单循环函数
 } Menu, *MenuHandle;
 
 /* 初始化菜单项
@@ -83,11 +83,10 @@ MenuHandle initMenu(void (*displayMenuItem)(MenuItemHandle), void (*displaySelec
 void registerMenu(MenuHandle menuHandle);
 void registerMenuItem(MenuHandle menuHandle, MenuItemHandle menuItemHandle);
 void updateCurrentMenu(MenuHandle menuHandle);
-void updateCurrentMenuItem(ChangeMenuItemAction itemAction);
-char getCurrentMenuItemTag();
+void updateSelectedMenuItem(ChangeMenuItemAction itemAction);
+char getSelectedMenuItemTag();
 void *triggerCurrentMenuAction(void *actionArgs);
 int isCurrentMenu(MenuHandle menuHandle);
 void runMainMenu(MenuHandle menuHandle);
-
 
 #endif // SIMPLE_CMENU_H

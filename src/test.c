@@ -13,9 +13,6 @@ struct node
 // your functions
 struct node *creatlink(struct node *head);
 void printstring(struct node *head);
-int checkstring(struct node *head, char *str);
-void savetofile(struct node *head, char *filename);
-struct node *getfromfile(struct node *head, char *filename);
 void quit();
 
 // your menu loops
@@ -28,13 +25,18 @@ void displayMenuItem(MenuItemHandle menuItemHandle);
 void displaySelectedMenuItem(MenuItemHandle menuItemHandle);
 void hideCursor();
 void showCursor();
+void goToxy(int x, int y);
+
+
 
 // init your menus
 void initAllMenus(MenuHandle mainMenu);
 
 int main(void)
 {
-    MenuHandle mainMenu = initMenu(displayMenuItem, displaySelectedMenuItem, mainMenuLoop);
+    initMenuDisplayFunctions(displayMenuItem, displaySelectedMenuItem, goToxy);
+
+    MenuHandle mainMenu = initMenu(mainMenuLoop);
 
     initAllMenus(mainMenu);
 
@@ -54,12 +56,10 @@ void mainMenuLoop(MenuHandle menuHandle)
         {
             if (GetAsyncKeyState(VK_UP))
             {
-                system("cls");
                 updateSelectedMenuItem(UP);
             }
             if (GetAsyncKeyState(VK_DOWN))
             {
-                system("cls");
                 updateSelectedMenuItem(DOWN);
             }
             c = getch();
@@ -67,9 +67,7 @@ void mainMenuLoop(MenuHandle menuHandle)
                 c -= ('a' - 'A');
             if (c <= 'D' && c >= 'A')
             {
-                system("cls");
                 updateSelectedMenuItem(c);
-                printf("command is [%c]\n", c);
             }
             else if (c == '\r')
             {
@@ -81,10 +79,12 @@ void mainMenuLoop(MenuHandle menuHandle)
                 case 'B':
                 {
                     head = creatlink(head);
+                    system("pause");
                     break;
                 }
                 case 'C':
                     printstring(head);
+                    system("pause");
                     break;
                 case 'D':
                     quit();
@@ -110,12 +110,10 @@ void subMenu1Loop(MenuHandle menuHandle)
         {
             if (GetAsyncKeyState(VK_UP))
             {
-                system("cls");
                 updateSelectedMenuItem(UP);
             }
             if (GetAsyncKeyState(VK_DOWN))
             {
-                system("cls");
                 updateSelectedMenuItem(DOWN);
             }
             c = getch();
@@ -123,9 +121,7 @@ void subMenu1Loop(MenuHandle menuHandle)
                 c -= ('a' - 'A');
             if (c <= 'B' && c >= 'A')
             {
-                system("cls");
                 updateSelectedMenuItem(c);
-                printf("command is [%c]\n", c);
             }
             else if (c == '\r')
             {
@@ -156,12 +152,10 @@ void subMenu2Loop(MenuHandle menuHandle)
         {
             if (GetAsyncKeyState(VK_UP))
             {
-                system("cls");
                 updateSelectedMenuItem(UP);
             }
             if (GetAsyncKeyState(VK_DOWN))
             {
-                system("cls");
                 updateSelectedMenuItem(DOWN);
             }
             c = getch();
@@ -169,7 +163,6 @@ void subMenu2Loop(MenuHandle menuHandle)
                 c -= ('a' - 'A');
             if (c <= 'A' && c >= 'A')
             {
-                system("cls");
                 updateSelectedMenuItem(c);
                 printf("command is [%c]\n", c);
             }
@@ -194,8 +187,8 @@ void subMenu2Loop(MenuHandle menuHandle)
 void initAllMenus(MenuHandle mainMenu)
 {
     hideCursor();
-    MenuHandle subMenu1 = initMenu(displayMenuItem, displaySelectedMenuItem, subMenu1Loop);
-    MenuHandle subMenu2 = initMenu(displayMenuItem, displaySelectedMenuItem, subMenu2Loop);
+    MenuHandle subMenu1 = initMenu(subMenu1Loop);
+    MenuHandle subMenu2 = initMenu(subMenu2Loop);
 
     MenuItemHandle mainMenuItem1 = initChangeMenuItem("enter subMenu1", ENTER_MENU_TYPE, subMenu1);
     MenuItemHandle mainMenuItem2 = initExecFuncMenuItem("creatlink");
@@ -225,12 +218,12 @@ void quit()
 
 void displayMenuItem(MenuItemHandle menuItemHandle)
 {
-    printf("  %s\n", menuItemHandle->name);
+    printf("%s  \n", menuItemHandle->name);
 }
 
 void displaySelectedMenuItem(MenuItemHandle menuItemHandle)
 {
-    printf("<<%s>>\n", menuItemHandle->name);
+    printf("  \033[7m%s\033[0m\n", menuItemHandle->name);
 }
 
 void hideCursor()
@@ -249,6 +242,13 @@ void showCursor()
     GetConsoleCursorInfo(hConsole, &cursorInfo);
     cursorInfo.bVisible = TRUE; // 设置光标可见
     SetConsoleCursorInfo(hConsole, &cursorInfo);
+}
+
+void goToxy(int x, int y)
+{
+    COORD pos = {x, y};
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE); // 获取标准输出设备句柄
+    SetConsoleCursorPosition(hOut, pos);           // 两个参数分别是指定哪个窗体，具体位置
 }
 
 struct node *creatlink(struct node *head)
@@ -301,73 +301,3 @@ void printstring(struct node *head)
     }
 }
 
-int checkstring(struct node *head, char *str)
-{
-    struct node *p = head;
-    while (p)
-    {
-        if (strcmp(p->name, str) == 0)
-            return 1;
-        p = p->next;
-    }
-    return -1;
-}
-
-void savetofile(struct node *head, char *filename)
-{
-    FILE *fp;
-    struct node *p = head;
-    fp = fopen(filename, "w");
-    if (fp == NULL)
-    {
-        printf("Can't open file\n");
-        exit(0);
-    }
-    while (p)
-    {
-        fprintf(fp, "%s %d\n", p->name, p->data);
-        p = p->next;
-    }
-    fclose(fp);
-}
-
-struct node *getfromfile(struct node *head, char *filename)
-{
-    FILE *fp;
-    struct node *p, *temp;
-    head = NULL;
-    fp = fopen(filename, "r");
-    if (fp == NULL)
-    {
-        printf("Can't open file\n");
-        exit(0);
-    }
-    while (1)
-    {
-        if (!head)
-        {
-            head = (struct node *)malloc(sizeof(struct node));
-            head->next = NULL;
-            if (fscanf(fp, "%s %d", head->name, &head->data) != 2)
-            {
-                free(head);
-                break;
-            }
-            p = head;
-        }
-        else
-        {
-            temp = (struct node *)malloc(sizeof(struct node));
-            temp->next = NULL;
-            if (fscanf(fp, "%s %d", temp->name, &temp->data) != 2)
-            {
-                free(temp);
-                break;
-            }
-            p->next = temp;
-            p = temp;
-        }
-    }
-    fclose(fp);
-    return head;
-}

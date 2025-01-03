@@ -26,12 +26,15 @@ typedef struct ActionArgs
 typedef struct MenuItem
 {
     MenuItemType type; // 菜单项类型
-    char *name;  // 菜单项名称
+    char *name;        // 菜单项名称
     char tag;          // 菜单项标签
-
+    struct
+    {
+        int x; // 列
+        int y; // 行
+    } pos;     // 菜单项坐标
     union
     {
-
         // 类型为CHANGE_MENU_TYPE才本项有意义
         struct
         {
@@ -62,13 +65,29 @@ typedef struct MenuItemList
 // 菜单
 typedef struct Menu
 {
-    MenuItemList *menuItemListHandle;                // 菜单项列表
-    MenuItemHandle selectedMenuItemHandle;           // 当前选中的菜单项
-    char selectedMenuItemTag;                        // 当前选中的菜单项标签
+    struct
+    {
+        int x;        // 列
+        int y;        // 行
+    } topMenuInfoPos; // 顶部菜单信息行坐标
+    struct
+    {
+        int x;           // 列
+        int y;           // 行
+    } bottomMenuInfoPos; // 底部菜单信息行
+
+    MenuItemList *menuItemListHandle;      // 菜单项列表
+    MenuItemHandle selectedMenuItemHandle; // 当前选中的菜单项
+    char selectedMenuItemTag;              // 当前选中的菜单项标签
+    void (*loop)(MenuHandle);              // 菜单循环函数
+} Menu, *MenuHandle;
+
+typedef struct
+{
     void (*displayMenuItem)(MenuItemHandle);         // 显示菜单项
     void (*displaySelectedMenuItem)(MenuItemHandle); // 显示当前选中的菜单项
-    void (*loop)(MenuHandle);                        // 菜单循环函数
-} Menu, *MenuHandle;
+    void (*moveCursor)(int x, int y);                // 移动光标
+} MenuDisplayFunctions;
 
 /* 初始化菜单项
  * @param name 菜单项名称
@@ -77,7 +96,8 @@ typedef struct Menu
  */
 MenuItemHandle initExecFuncMenuItem(const char *name);
 MenuItemHandle initChangeMenuItem(const char *name, MenuItemType type, MenuHandle menuHandle);
-MenuHandle initMenu(void (*displayMenuItem)(MenuItemHandle), void (*displaySelectedMenuItem)(MenuItemHandle), void (*loop)(MenuHandle));
+MenuHandle initMenu(void (*loop)(MenuHandle));
+void initMenuDisplayFunctions(void (*displayMenuItem)(MenuItemHandle), void (*displaySelectedMenuItem)(MenuItemHandle), void (*moveCursor)(int, int));
 void registerMenu(MenuHandle menuHandle);
 void registerMenuItem(MenuHandle menuHandle, MenuItemHandle menuItemHandle);
 void updateCurrentMenu(MenuHandle menuHandle);
@@ -86,5 +106,6 @@ char getSelectedMenuItemTag();
 void changeCurrentMenu();
 int isCurrentMenu(MenuHandle menuHandle);
 void runMainMenu(MenuHandle menuHandle);
+void moveCursor(int x, int y);
 
 #endif // SIMPLE_CMENU_H

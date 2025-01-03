@@ -27,16 +27,15 @@ void hideCursor();
 void showCursor();
 void goToxy(int x, int y);
 
-
-
 // init your menus
 void initAllMenus(MenuHandle mainMenu);
 
 int main(void)
 {
     initMenuDisplayFunctions(displayMenuItem, displaySelectedMenuItem, goToxy);
-
-    MenuHandle mainMenu = initMenu(mainMenuLoop);
+    const char *topMenuInfo = "Simple C Menu";
+    const char *bottomMenuInfo = "";
+    MenuHandle mainMenu = initMenu(mainMenuLoop, topMenuInfo, bottomMenuInfo);
 
     initAllMenus(mainMenu);
 
@@ -187,8 +186,9 @@ void subMenu2Loop(MenuHandle menuHandle)
 void initAllMenus(MenuHandle mainMenu)
 {
     hideCursor();
-    MenuHandle subMenu1 = initMenu(subMenu1Loop);
-    MenuHandle subMenu2 = initMenu(subMenu2Loop);
+
+    MenuHandle subMenu1 = initMenu(subMenu1Loop, mainMenu->topMenuInfo, mainMenu->bottomMenuInfo);
+    MenuHandle subMenu2 = initMenu(subMenu2Loop, mainMenu->topMenuInfo, mainMenu->bottomMenuInfo);
 
     MenuItemHandle mainMenuItem1 = initChangeMenuItem("enter subMenu1", ENTER_MENU_TYPE, subMenu1);
     MenuItemHandle mainMenuItem2 = initExecFuncMenuItem("creatlink");
@@ -300,4 +300,3 @@ void printstring(struct node *head)
         p = p->next;
     }
 }
-

@@ -65,11 +65,14 @@ typedef struct MenuItemList
 // 菜单
 typedef struct Menu
 {
+    const char *topMenuInfo; // 顶部菜单信息
     struct
     {
         int x;        // 列
         int y;        // 行
     } topMenuInfoPos; // 顶部菜单信息行坐标
+
+    const char *bottomMenuInfo; // 底部菜单信息
     struct
     {
         int x;           // 列
@@ -96,7 +99,7 @@ typedef struct
  */
 MenuItemHandle initExecFuncMenuItem(const char *name);
 MenuItemHandle initChangeMenuItem(const char *name, MenuItemType type, MenuHandle menuHandle);
-MenuHandle initMenu(void (*loop)(MenuHandle));
+MenuHandle initMenu(void (*loop)(MenuHandle), const char *topMenuInfo, const char *bottomMenuInfo);
 void initMenuDisplayFunctions(void (*displayMenuItem)(MenuItemHandle), void (*displaySelectedMenuItem)(MenuItemHandle), void (*moveCursor)(int, int));
 void registerMenu(MenuHandle menuHandle);
 void registerMenuItem(MenuHandle menuHandle, MenuItemHandle menuItemHandle);
@@ -106,6 +109,5 @@ char getSelectedMenuItemTag();
 void changeCurrentMenu();
 int isCurrentMenu(MenuHandle menuHandle);
 void runMainMenu(MenuHandle menuHandle);
-void moveCursor(int x, int y);
 
 #endif // SIMPLE_CMENU_H

@@ -14,7 +14,7 @@ char getSelectedMenuItemTag()
 void changeCurrentMenu()
 {
     if (currentMenuHandle == NULL)
-        return NULL;
+        return;
     switch (currentMenuHandle->selectedMenuItemHandle->type)
     {
     case ENTER_MENU_TYPE:
@@ -34,7 +34,7 @@ void displayMenu(MenuHandle menuHandle)
 {
     MenuItem *p = menuHandle->menuItemListHandle->head;
     system("cls");
-    puts("Menu:");
+    printf("%s\n", menuHandle->topMenuInfo);
     puts("===================================");
     while (p != NULL)
     {
@@ -45,6 +45,7 @@ void displayMenu(MenuHandle menuHandle)
         p = p->nextItem;
     }
     puts("===================================");
+    printf("%s\n", menuHandle->bottomMenuInfo);
 }
 
 void updateMenu(MenuHandle menuHandle)
@@ -190,7 +191,7 @@ void initMenuDisplayFunctions(void (*displayMenuItem)(MenuItemHandle), void (*di
     menuDisplayFunctions.moveCursor = moveCursor;
 }
 
-MenuHandle initMenu(void (*loop)(MenuHandle))
+MenuHandle initMenu(void (*loop)(MenuHandle), const char *topMenuInfo, const char *bottomMenuInfo)
 {
     MenuHandle menuHandle = (MenuHandle)malloc(sizeof(Menu));
     if (menuHandle == NULL)
@@ -206,6 +207,8 @@ MenuHandle initMenu(void (*loop)(MenuHandle))
     menuHandle->selectedMenuItemHandle = NULL;
     menuHandle->selectedMenuItemTag = '\0';
     menuHandle->loop = loop;
+    menuHandle->topMenuInfo = topMenuInfo;
+    menuHandle->bottomMenuInfo = bottomMenuInfo;
     return menuHandle;
 }
 

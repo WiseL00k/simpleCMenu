@@ -12,11 +12,11 @@ struct node
 
 // your functions
 struct node *creatlink(struct node *head);
-void *printstring(struct node *head);
+void printstring(struct node *head);
 int checkstring(struct node *head, char *str);
 void savetofile(struct node *head, char *filename);
 struct node *getfromfile(struct node *head, char *filename);
-void *quit(void *args);
+void quit();
 
 // your menu loops
 void mainMenuLoop(MenuHandle menuHandle);
@@ -76,21 +76,23 @@ void mainMenuLoop(MenuHandle menuHandle)
                 switch (getSelectedMenuItemTag())
                 {
                 case 'A':
-                    triggerCurrentMenuAction(NULL);
+                    changeCurrentMenu();
                     break;
                 case 'B':
                 {
-                    head = triggerCurrentMenuAction(head);
+                    head = creatlink(head);
                     break;
                 }
                 case 'C':
-                    triggerCurrentMenuAction(head);
+                    printstring(head);
                     break;
                 case 'D':
-                    triggerCurrentMenuAction(NULL);
+                    quit();
                 default:
                     break;
                 }
+                if (isCurrentMenu(menuHandle))
+                    updateCurrentMenu(menuHandle);
             }
             else if (c == 'C')
                 exit(0);
@@ -130,13 +132,15 @@ void subMenu1Loop(MenuHandle menuHandle)
                 switch (getSelectedMenuItemTag())
                 {
                 case 'A':
-                    triggerCurrentMenuAction(NULL);
+                    changeCurrentMenu();
                     break;
                 case 'B':
-                    triggerCurrentMenuAction(NULL);
+                    changeCurrentMenu();
                 default:
                     break;
                 }
+                if (isCurrentMenu(menuHandle))
+                    updateCurrentMenu(menuHandle);
             }
             Sleep(100); // 软件延时消抖
         }
@@ -174,11 +178,13 @@ void subMenu2Loop(MenuHandle menuHandle)
                 switch (getSelectedMenuItemTag())
                 {
                 case 'A':
-                    triggerCurrentMenuAction(NULL);
+                    changeCurrentMenu();
                     break;
                 default:
                     break;
                 }
+                if (isCurrentMenu(menuHandle))
+                    updateCurrentMenu(menuHandle);
             }
             Sleep(100); // 软件延时消抖
         }
@@ -192,9 +198,9 @@ void initAllMenus(MenuHandle mainMenu)
     MenuHandle subMenu2 = initMenu(displayMenuItem, displaySelectedMenuItem, subMenu2Loop);
 
     MenuItemHandle mainMenuItem1 = initChangeMenuItem("enter subMenu1", ENTER_MENU_TYPE, subMenu1);
-    MenuItemHandle mainMenuItem2 = initExecFuncMenuItem("creatlink", creatlink);
-    MenuItemHandle mainMenuItem3 = initExecFuncMenuItem("printstring", printstring);
-    MenuItemHandle mainMenuItem4 = initExecFuncMenuItem("exit", quit);
+    MenuItemHandle mainMenuItem2 = initExecFuncMenuItem("creatlink");
+    MenuItemHandle mainMenuItem3 = initExecFuncMenuItem("printstring");
+    MenuItemHandle mainMenuItem4 = initExecFuncMenuItem("exit");
     registerMenuItem(mainMenu, mainMenuItem1);
     registerMenuItem(mainMenu, mainMenuItem2);
     registerMenuItem(mainMenu, mainMenuItem3);
@@ -207,10 +213,9 @@ void initAllMenus(MenuHandle mainMenu)
 
     MenuItemHandle subMenu2Item1 = initChangeMenuItem("return subMenu1", EXIT_MENU_TYPE, subMenu1);
     registerMenuItem(subMenu2, subMenu2Item1);
-
 }
 
-void *quit(void *args)
+void quit()
 {
     puts("are you sure to exit? y/n");
     char c = getch();
@@ -286,7 +291,7 @@ struct node *creatlink(struct node *head)
     return head;
 }
 
-void *printstring(struct node *head)
+void printstring(struct node *head)
 {
     struct node *p = head;
     while (p)
@@ -294,8 +299,6 @@ void *printstring(struct node *head)
         printf("%s %d\n", p->name, p->data);
         p = p->next;
     }
-
-    return NULL;
 }
 
 int checkstring(struct node *head, char *str)

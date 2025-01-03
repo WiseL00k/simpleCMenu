@@ -31,8 +31,6 @@ typedef struct MenuItem
 
     union
     {
-        // 类型为EXECUTIVE_FUNCTION_TYPE才本项有意义
-        void *(*action)(void *); // 菜单项动作
 
         // 类型为CHANGE_MENU_TYPE才本项有意义
         struct
@@ -77,7 +75,7 @@ typedef struct Menu
  * @param type 菜单项类型
  * @param action 菜单项动作, 当菜单项类型为EXECUTIVE_FUNCTION_TYPE时有效, 否则为NULL
  */
-MenuItemHandle initExecFuncMenuItem(const char *name, void *(*action)(void *));
+MenuItemHandle initExecFuncMenuItem(const char *name);
 MenuItemHandle initChangeMenuItem(const char *name, MenuItemType type, MenuHandle menuHandle);
 MenuHandle initMenu(void (*displayMenuItem)(MenuItemHandle), void (*displaySelectedMenuItem)(MenuItemHandle), void (*loop)(MenuHandle));
 void registerMenu(MenuHandle menuHandle);
@@ -85,7 +83,7 @@ void registerMenuItem(MenuHandle menuHandle, MenuItemHandle menuItemHandle);
 void updateCurrentMenu(MenuHandle menuHandle);
 void updateSelectedMenuItem(ChangeMenuItemAction itemAction);
 char getSelectedMenuItemTag();
-void *triggerCurrentMenuAction(void *actionArgs);
+void changeCurrentMenu();
 int isCurrentMenu(MenuHandle menuHandle);
 void runMainMenu(MenuHandle menuHandle);
 

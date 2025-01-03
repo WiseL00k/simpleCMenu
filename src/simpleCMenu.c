@@ -10,17 +10,12 @@ char getSelectedMenuItemTag()
     return currentMenuHandle->selectedMenuItemHandle->tag;
 }
 
-void *triggerCurrentMenuAction(void *actionArgs)
+void changeCurrentMenu()
 {
-    void *p = NULL;
     if (currentMenuHandle == NULL)
         return NULL;
     switch (currentMenuHandle->selectedMenuItemHandle->type)
     {
-    case EXECUTIVE_FUNCTION_TYPE:
-        p = currentMenuHandle->selectedMenuItemHandle->un.action(actionArgs);
-        system("pause");
-        break;
     case ENTER_MENU_TYPE:
         currentMenuHandle->selectedMenuItemHandle->un.enter.enterMenuAction(currentMenuHandle->selectedMenuItemHandle);
         break;
@@ -32,7 +27,6 @@ void *triggerCurrentMenuAction(void *actionArgs)
     }
 
     updateCurrentMenu(currentMenuHandle);
-    return p;
 }
 
 void display(MenuHandle menuHandle)
@@ -126,9 +120,9 @@ void exitMenuAction(struct MenuItem *self)
     updateCurrentMenu(self->un.exit.prevMenu);
 }
 
-MenuItemHandle initExecFuncMenuItem(const char *name, void *(*action)(void *))
+MenuItemHandle initExecFuncMenuItem(const char *name)
 {
-    if (name == NULL || action == NULL)
+    if (name == NULL)
         return NULL;
     MenuItemHandle menuItemHandle = (MenuItemHandle)malloc(sizeof(MenuItem));
     if (menuItemHandle == NULL)
@@ -136,7 +130,6 @@ MenuItemHandle initExecFuncMenuItem(const char *name, void *(*action)(void *))
     menuItemHandle->name = name;
     menuItemHandle->tag = '\0';
     menuItemHandle->type = EXECUTIVE_FUNCTION_TYPE;
-    menuItemHandle->un.action = action;
     menuItemHandle->nextItem = NULL;
     menuItemHandle->prevItem = NULL;
     return menuItemHandle;

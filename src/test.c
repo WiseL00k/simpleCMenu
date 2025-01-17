@@ -30,11 +30,21 @@ void goToxy(int x, int y);
 // init your menus
 void initAllMenus(MenuHandle mainMenu);
 
+char *topMenuInfo[] = {
+    "       ____   ____    _   _   _____   ",
+    "      / ___| |  _ \\  | | | | |_   _| ",
+    "     | |  _  | | | | | | | |   | |    ",
+    "     | |_| | | |_| | | |_| |   | |    ",
+    "      \\____| |____/   \\___/    |_|  ",
+    "=======================================",
+    "\t    Simple C Menu",
+    "=======================================",
+};
+
 int main(void)
 {
     initMenuDisplayFunctions(displayMenuItem, displaySelectedMenuItem, goToxy);
-    const char *topMenuInfo = "Simple C Menu";
-    const char *bottomMenuInfo = "";
+    const char* bottomMenuInfo = "";
     MenuHandle mainMenu = initMenu(mainMenuLoop, topMenuInfo, bottomMenuInfo);
 
     initAllMenus(mainMenu);
@@ -223,7 +233,7 @@ void displayMenuItem(MenuItemHandle menuItemHandle)
 
 void displaySelectedMenuItem(MenuItemHandle menuItemHandle)
 {
-    printf("  \033[7m%s\033[0m\n", menuItemHandle->name);
+    printf("\033[7m%s\033[0m\n", menuItemHandle->name);
 }
 
 void hideCursor()
